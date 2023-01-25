@@ -20,8 +20,18 @@ async function consumeAPI(signal) {
 
 function appendToHTML(el) {
   return new WritableStream({
-      write({title, description, url_anime}) {
-        el.innerHTML += title + "<br>"
+      write({name, type, rating, episodes}) {
+        const card = `        
+          <article>
+            <div class="text">
+              <h3>${name}</h3>
+              <p>Type: ${type}</p>
+              <p>Rating: ${rating}</p>
+              <p>Episodes: ${episodes}</p>
+            </div>
+          </article>
+        `
+        el.innerHTML += card;
       }
   })
 }
@@ -53,7 +63,16 @@ const [
 ] = ['start', 'stop', 'cards']
   .map(item => document.getElementById(item));
 
-const abortController = new AbortController();
-const readable = await consumeAPI(abortController.signal);
-readable.pipeTo(appendToHTML(cards));
+let abortController = new AbortController();
 
+start.addEventListener('click', async () => {
+  const readable = await consumeAPI(abortController.signal);
+  readable.pipeTo(appendToHTML(cards));
+})
+
+stop.addEventListener('click', () => {
+  abortController.abort();
+  console.log('aborting...');
+
+  abortController = new AbortController();
+})

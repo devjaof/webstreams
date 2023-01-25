@@ -23,7 +23,7 @@ createServer(async (req, res) => {
   res.once('close', _=> console.log(`connection closed, ${items} items loaded...`))
 
   let items = 0;
-  Readable.toWeb(createReadStream('./animeflv.csv'))
+  Readable.toWeb(createReadStream('./anime.csv'))
   // passo a passo de cada item
   .pipeThrough(Transform.toWeb(csvtojson()))
   .pipeThrough(new TransformStream({
@@ -31,9 +31,10 @@ createServer(async (req, res) => {
       const data = JSON.parse(Buffer.from(chunk))
       controller.enqueue(
         JSON.stringify({
-          title: data.title,
-          description: data.description,
-          url_anime: data.url_anime,
+          name: data.name,
+          type: data.type,
+          rating: data.rating,
+          episodes: data.episodes,
         }).concat('\n')
       );
     }
